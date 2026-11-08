@@ -1,86 +1,109 @@
 # Neural Audio Denoising
 
-A speech enhancement project exploring digital signal processing, deep learning, and cross-platform model deployment using Python, PyTorch, ONNX Runtime, and C++.
+A speech enhancement system that combines **Digital Signal Processing (DSP)** and **Deep Learning** to suppress background noise in speech recordings.
 
-## Project Objective
+The project explores the complete workflow of developing a neural-network-based audio denoising system, from audio preprocessing and spectral-mask estimation to model deployment and C++ inference.
 
-Develop an audio denoising application that uses a deep neural network to suppress background noise while preserving speech quality.
+## Project Overview
 
-The pipeline is:
+The objective is to develop a system that takes a noisy speech recording and produces an enhanced speech signal using a convolutional neural network (CNN).
 
-1. Audio input and preprocessing
-2. STFT-based time-frequency analysis
-3. Neural network training using PyTorch
-4. Spectral mask estimation and noise suppression
-5. ONNX model export
-6. C++ inference using ONNX Runtime
-7. Performance evaluation and optimizationi thing&#x20;
+The system operates in the time-frequency domain. Audio is transformed into a magnitude spectrogram using the Short-Time Fourier Transform (STFT). A neural network estimates a spectral mask, which is applied to the noisy signal to suppress noise while preserving speech characteristics.
+
+The project combines Python-based model development with DSP processing and C++ inference.
+
+## System Architecture
+
+The denoising pipeline consists of five stages:
+
+1. **Noisy Speech Input** – Load a noisy WAV recording.
+2. **DSP Preprocessing** – Perform framing, STFT, magnitude-spectrum extraction and normalization.
+3. **Neural Network Inference** – Train a CNN in PyTorch, export the model to ONNX and perform inference using C++.
+4. **DSP Postprocessing** – Apply the estimated spectral mask, perform inverse STFT and overlap-add reconstruction.
+5. **Enhanced Speech Output** – Generate the denoised WAV recording.
+
+## Technical Approach
+
+### 1. Audio Processing
+
+- Load and process WAV audio recordings.
+- Convert stereo audio to mono.
+- Resample audio to a target sampling rate.
+- Apply windowing and STFT to obtain time-frequency representations.
+- Extract magnitude spectra and normalize the input features.
+- Reconstruct audio using inverse STFT.
+
+### 2. Dataset and Training Data Preparation
+
+The system uses the **VoiceBank + DEMAND** dataset, containing paired clean and noisy speech recordings.
+
+- Training set: 11,572 paired recordings.
+- Test set: 824 paired recordings.
+- Sampling rate: 16 kHz.
+- Dataset license: CC BY 4.0.
+
+The dataset is available from [Hugging Face – VoiceBank-DEMAND-16k](https://huggingface.co/datasets/JacobLinCool/VoiceBank-DEMAND-16k).
+
+Download the dataset:
+
+```bash
+pip install huggingface_hub
+
+hf download JacobLinCool/VoiceBank-DEMAND-16k \
+    --repo-type dataset \
+    --local-dir data/dataset/parquet
+```
+
+Extract the audio recordings:
+
+```bash
+python -m python.extract_dataset
+```
+
+Validate the extracted dataset:
+
+```bash
+python -m python.validate_dataset
+```
+
+### 3. Neural Network
+
+A convolutional neural network (CNN) is used to estimate a spectral mask from the normalized noisy magnitude spectrogram.
+
+The model is developed and trained using PyTorch. The estimated mask is used to suppress noise in the time-frequency representation while retaining the phase information of the noisy input.
+
+### 4. DSP Postprocessing
+
+The estimated spectral mask is applied to the complex STFT representation of the noisy signal. The enhanced signal is then reconstructed using inverse STFT and overlap-add processing.
+
+### 5. Model Deployment
+
+The deployment workflow uses ONNX to export the trained PyTorch model and C++ for model inference. This provides a path from Python-based model development to a standalone inference implementation.
+
+## Signal Processing Configuration
+
+| Parameter | Configuration |
+|---|---|
+| Sampling rate | 16 kHz |
+| FFT size | 512 |
+| Hop length | 128 samples |
+| Window | Hann |
+| Training segment length | 2 seconds |
+| STFT representation | Complex spectrum |
+| Neural network input | Normalized magnitude spectrogram |
+| Neural network output | Estimated spectral mask |
 
 ## Technologies
 
-- Python
-- C++17
-- NumPy and SciPy
-- Librosa and SoundFile
-- PyTorch and TorchAudio
-- ONNX and ONNX Runtime
-- CMake
-- Matplotlib
-- Pytest
+- **Programming:** Python, C++17
+- **DSP:** NumPy, SciPy, Librosa, SoundFile
+- **Deep Learning:** PyTorch, TorchAudio
+- **Model Deployment:** ONNX, ONNX Runtime
+- **Build System:** CMake
+- **Visualization:** Matplotlib
+- **Testing:** Pytest
 
-**Initial signal configuration:**
-
-| Parameter       |     Value |
-| --------------- | --------: |
-| Sampling rate   |    16 kHz |
-| Signal duration | 3 seconds |
-| FFT size        |       512 |
-| Hop length      |       128 |
-| Window          |      Hann |
-
-A synthetic test signal containing 440 Hz and 880 Hz sinusoidal components was generated to verify the audio-processing pipeline.
-
-**STFT reconstruction verification:**
-
-- Original samples: 48,000
-- Reconstructed samples: 48,000
-- Reconstruction MSE: approximately `9.92e-16`
-
-### Visualization Results
-
-#### Clean Audio Waveform
-
-
-
-#### Clean Audio Spectrogram
-
-
-## Repository Structure
-
-```text
-neural-audio-denoising/
-├── cpp/
-│   ├── include/
-│   └── src/
-├── data/
-│   ├── clean/
-│   └── noisy/
-├── docs/
-├── models/
-├── python/
-│   ├── preprocessing/
-│   │   ├── audio_io.py
-│   │   └── stft.py
-│   ├── generate_test_audio.py
-│   ├── test_stft.py
-│   └── visualize_audio.py
-├── results/
-├── tests/
-├── requirements.txt
-└── README.md
-```
-
-## Setup
+## Installation
 
 Clone the repository:
 
@@ -102,30 +125,50 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Generate the synthetic test audio:
+## Running the Project
+
+Generate test audio:
 
 ```bash
 python -m python.generate_test_audio
 ```
 
-Run the STFT reconstruction test:
+Run the STFT test:
 
 ```bash
 python -m python.test_stft
 ```
 
-Generate waveform and spectrogram visualizations:
+Visualize the audio:
 
 ```bash
 python -m python.visualize_audio
 ```
 
+Run the CNN model test:
+
+```bash
+python -m python.models.test_model
+```
+
+## Key Learning Outcomes
+
+This project provides practical experience in:
+
+- Digital signal processing for speech enhancement.
+- Time-frequency analysis using STFT and inverse STFT.
+- Audio framing, windowing and overlap-add reconstruction.
+- Spectral-mask estimation for noise suppression.
+- Preparing paired audio datasets for supervised learning.
+- Building and training convolutional neural networks using PyTorch.
+- Evaluating speech enhancement performance.
+- Deploying neural networks using ONNX.
+- Integrating deep-learning inference into C++ applications.
+- Developing and validating an end-to-end audio processing pipeline.
+
 ## Development Environment
 
-- Ubuntu 22.04
-- Python 3.10 or compatible version
-- G++ 11.4 or compatible C++17 compiler
-- CMake 3.22 or compatible version
-
----
-
+- Ubuntu 22.04 LTS (WSL2)
+- Python 3.10
+- C++17
+- CMake
