@@ -24,3 +24,7 @@ cmake-build-*/
 
 # OS
 .DS_Store
+
+# Local datasets and training artifacts
+/data/
+/models/

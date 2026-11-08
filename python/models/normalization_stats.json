@@ -1,0 +1,11 @@
+{
+    "sample_rate": 16000,
+    "n_fft": 512,
+    "hop_length": 128,
+    "mean": 0.29506012333678855,
+    "std": 1.0340094945529965,
+    "number_of_recordings": 11572,
+    "number_of_values": 1087658181,
+    "source_split": "train",
+    "feature": "noisy_magnitude"
+}
